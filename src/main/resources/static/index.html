@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Heartbeat Hotel</title>
+    <script src="sockjs-0.3.4.js"></script>
+    <script src="stomp.js"></script>
+    <script type="text/javascript">
+        var stompClient = null;
+
+        function setConnected(connected) {
+            document.getElementById('connect').disabled = connected;
+            document.getElementById('disconnect').disabled = !connected;
+            document.getElementById('heartbeatDiv').style.visibility = connected ? 'visible' : 'hidden';
+            document.getElementById('heartbeat').innerHTML = '';
+            document.getElementById('currentDateDiv').style.visibility = connected ? 'visible' : 'hidden';
+            document.getElementById('currentDate').innerHTML = '';
+        }
+
+        function connect() {
+            var name = document.getElementById('name').value;
+            var socket = new SockJS('/hello');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function(frame) {
+                setConnected(true);
+                console.log('Connected: ' + frame);
+
+                register();
+
+                stompClient.subscribe('/topic/' + name, function(update){
+                    showUpdate(JSON.parse(update.body).newDate);
+                });
+
+                stompClient.subscribe('/topic/heartbeat', function(heartbeat){
+                    console.log('received heart beat:' + heartbeat);
+                    showHeartBeat(JSON.parse(heartbeat.body).current);
+                });
+            });
+        }
+
+        function disconnect() {
+            deregister();
+            stompClient.disconnect();
+            setConnected(false);
+            console.log("Disconnected");
+        }
+
+        function showHeartBeat(message) {
+            var heartbeat = document.getElementById('heartbeat');
+            heartbeat.innerHTML = 'heartbeat: ' + message;
+        }
+
+        function showUpdate(message) {
+            var currentDate = document.getElementById('currentDate');
+            currentDate.innerHTML = 'Current Date: ' + message;
+        }
+
+        function register() {
+            var name = document.getElementById('name').value;
+            console.log('register with client name:' + name);
+            stompClient.send("/app/hello", {}, JSON.stringify({ 'client': name }));
+        }
+
+        function deregister() {
+            var name = document.getElementById('name').value;
+            console.log('deregister with client name:' + name);
+            stompClient.send("/app/disconnecting", {}, JSON.stringify({ 'client': name }));
+        }
+
+        function roll() {
+            var name = document.getElementById('name').value;
+            console.log('roll the date with client name:' + name);
+            stompClient.send("/app/roll", {}, JSON.stringify({ 'client': name }));
+        }
+    </script>
+</head>
+<body>
+<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being enabled. Please enable
+    Javascript and reload this page!</h2></noscript>
+<div>
+    <div>
+        <label>What is your property name?</label><input type="text" id="name" />
+        <button id="connect" onclick="connect();">Click to Connect</button>
+        <button id="disconnect" disabled="disabled" onclick="disconnect();">Disconnect</button>
+    </div>
+    <div>
+        <label>What is your property name?</label>
+        <button id="roll" onclick="roll();">Click to roll the date</button>
+    </div>
+    <div id="heartbeatDiv">
+        <p id="heartbeat"></p>
+    </div>
+    <div id="currentDateDiv">
+        <p id="currentDate"></p>
+    </div>
+</div>
+</body>
+</html>
