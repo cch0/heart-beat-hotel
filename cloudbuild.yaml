@@ -1,4 +1,4 @@
-steps:
+steps:  
 - name: 'ubuntu'
   args: ['echo', '$COMMIT_SHA']
 - name: 'gcr.io/cloud-builders/mvn'
