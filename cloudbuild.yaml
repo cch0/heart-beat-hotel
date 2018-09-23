@@ -2,7 +2,7 @@ steps:
 - name: 'ubuntu'
   args: ['echo', '$COMMIT_SHA']
 - name: 'gcr.io/cloud-builders/mvn'
- args: ['clean', 'verify']
+  args: ['clean', 'verify']
 #- name: 'gcr.io/cloud-builders/docker'
 #  args: ['build', '--tag=gcr.io/$PROJECT_ID/opentracing-jaeger-app-a', '.']
 #- name: 'gcr.io/cloud-builders/docker'
