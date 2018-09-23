@@ -1,0 +1,15 @@
+steps:
+- name: 'ubuntu'
+  args: ['echo', '$COMMIT_SHA']
+- name: 'gcr.io/cloud-builders/mvn'
+  args: ['clean', 'verify']
+#- name: 'gcr.io/cloud-builders/docker'
+#  args: ['build', '--tag=gcr.io/$PROJECT_ID/opentracing-jaeger-app-a', '.']
+#- name: 'gcr.io/cloud-builders/docker'
+#  args: ['push', 'gcr.io/$PROJECT_ID/opentracing-jaeger-app-a']
+#- name: 'gcr.io/$PROJECT_ID/helm'
+#  args: ['upgrade', 'app-a-release', 'app-a', '--namespace', 'default', '--install']
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=us-west1-a'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=istio-cluster'
+#images: ['gcr.io/$PROJECT_ID/opentracing-jaeger-app-a']
